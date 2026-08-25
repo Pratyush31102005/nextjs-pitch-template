@@ -1,3 +1,4 @@
+import { Navbar } from "@/components/layout/Navbar";
 import { Hero } from "@/components/sections/Hero";
 import { Showcase } from "@/components/sections/Showcase";
 import { Features } from "@/components/sections/Features";
@@ -13,9 +14,12 @@ export default function Home() {
         color: brandConfig.textPrimary,
       }}
     >
+      <Navbar />
       <Hero />
       <Showcase />
-      <Features />
+      <div id="features">
+        <Features />
+      </div>
       <Footer />
     </main>
   );

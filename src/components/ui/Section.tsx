@@ -10,7 +10,7 @@ interface SectionProps {
 
 export function Section({ children, id, className = "" }: SectionProps) {
   return (
-    <section id={id} className={`py-24 lg:py-32 px-6 lg:px-16 max-w-7xl mx-auto ${className}`}>
+    <section id={id} className={`py-16 lg:py-24 px-6 lg:px-16 max-w-7xl mx-auto ${className}`}>
       <motion.div
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
