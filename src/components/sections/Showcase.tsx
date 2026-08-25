@@ -96,22 +96,33 @@ export function Showcase() {
     return () => observer.disconnect();
   }, [hasStarted]);
 
-  // Typing animation
+  // Typing animation — loops
   useEffect(() => {
     if (!hasStarted) return;
 
     let index = 0;
-    const interval = setInterval(() => {
-      if (index < SQL_QUERY.length) {
-        setTypedText(SQL_QUERY.slice(0, index + 1));
-        index++;
-      } else {
-        clearInterval(interval);
-        setIsTypingDone(true);
-      }
-    }, 38);
+    let timeoutId: NodeJS.Timeout;
 
-    return () => clearInterval(interval);
+    function typeNext() {
+      if (index < SQL_QUERY.length) {
+        index++;
+        setTypedText(SQL_QUERY.slice(0, index));
+        timeoutId = setTimeout(typeNext, 38);
+      } else {
+        // Done typing — pause, then clear and restart
+        setIsTypingDone(true);
+        timeoutId = setTimeout(() => {
+          setTypedText("");
+          setIsTypingDone(false);
+          index = 0;
+          timeoutId = setTimeout(typeNext, 800);
+        }, 3000);
+      }
+    }
+
+    typeNext();
+
+    return () => clearTimeout(timeoutId);
   }, [hasStarted]);
 
   // Show toast after typing completes
