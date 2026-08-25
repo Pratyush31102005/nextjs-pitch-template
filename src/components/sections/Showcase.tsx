@@ -9,11 +9,11 @@ export function Showcase() {
   const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => setShowToast(true), 2000);
+    const timer = setTimeout(() => setShowToast(true), 2500);
     const interval = setInterval(() => {
       setShowToast(false);
       setTimeout(() => setShowToast(true), 500);
-    }, 8000);
+    }, 9000);
     return () => {
       clearTimeout(timer);
       clearInterval(interval);
@@ -23,12 +23,12 @@ export function Showcase() {
   const x = useMotionValue(0);
   const y = useMotionValue(0);
 
-  const rotateX = useSpring(useTransform(y, [-0.5, 0.5], [15, -15]), {
-    stiffness: 300,
+  const rotateX = useSpring(useTransform(y, [-0.5, 0.5], [8, -8]), {
+    stiffness: 200,
     damping: 30,
   });
-  const rotateY = useSpring(useTransform(x, [-0.5, 0.5], [-15, 15]), {
-    stiffness: 300,
+  const rotateY = useSpring(useTransform(x, [-0.5, 0.5], [-8, 8]), {
+    stiffness: 200,
     damping: 30,
   });
 
@@ -47,76 +47,158 @@ export function Showcase() {
 
   return (
     <Section>
-      <div className="relative flex justify-center perspective-[1000px]">
-        <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-3xl -z-10"
-          style={{ background: `${brandConfig.primaryColorHex}10` }}
-        />
+      <div className="flex justify-center perspective-[1200px]">
         <motion.div
-          className="w-full max-w-4xl aspect-video rounded-2xl bg-zinc-900 border border-zinc-800 overflow-hidden cursor-pointer shadow-2xl"
-          style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+          className="w-full max-w-5xl rounded-xl overflow-hidden cursor-pointer"
+          style={{
+            rotateX,
+            rotateY,
+            transformStyle: "preserve-3d",
+            backgroundColor: brandConfig.bgSecondary,
+            border: `1px solid ${brandConfig.borderSubtle}`,
+            boxShadow: "8px 8px 0px rgba(0,0,0,0.4)",
+          }}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
-          animate={{ y: [0, -10, 0] }}
+          animate={{ y: [0, -6, 0] }}
           transition={{
-            y: { duration: 6, repeat: Infinity, ease: "easeInOut" },
+            y: { duration: 8, repeat: Infinity, ease: "easeInOut" },
           }}
         >
-          <div className="w-full h-full flex flex-col">
-            <div className="flex items-center gap-2 px-4 py-3 bg-zinc-950 border-b border-zinc-800">
-              <div className="w-3 h-3 rounded-full bg-red-500" />
-              <div className="w-3 h-3 rounded-full bg-yellow-500" />
-              <div className="w-3 h-3 rounded-full bg-green-500" />
-              <span className="ml-4 text-zinc-500 text-xs font-mono">query.sql</span>
-            </div>
-            <div className="flex-1 flex">
-              <div className="w-12 bg-zinc-950 border-r border-zinc-800 flex flex-col items-center pt-4 gap-2 text-zinc-600 text-xs font-mono">
-                <span>1</span>
-                <span>2</span>
-                <span>3</span>
-                <span>4</span>
-                <span>5</span>
+          <div className="w-full flex flex-col">
+            {/* Title bar */}
+            <div
+              className="flex items-center gap-3 px-5 py-3.5"
+              style={{
+                backgroundColor: brandConfig.bgPrimary,
+                borderBottom: `1px solid ${brandConfig.borderSubtle}`,
+              }}
+            >
+              <div className="flex gap-2">
+                <div className="w-3 h-3 rounded-full bg-[#e06c75]" />
+                <div className="w-3 h-3 rounded-full bg-[#e5c07b]" />
+                <div className="w-3 h-3 rounded-full bg-[#98c379]" />
               </div>
-              <div className="flex-1 p-6 bg-zinc-950 font-mono text-sm leading-7">
+              <span
+                className="ml-3 text-xs"
+                style={{
+                  fontFamily: "var(--font-jetbrains)",
+                  color: brandConfig.textMuted,
+                }}
+              >
+                query.sql — acme-ai
+              </span>
+            </div>
+
+            {/* Editor body */}
+            <div className="flex min-h-[320px]">
+              {/* Line numbers */}
+              <div
+                className="w-14 flex flex-col items-end pt-5 pb-5 pr-3 gap-0.5"
+                style={{
+                  fontFamily: "var(--font-jetbrains)",
+                  fontSize: "0.75rem",
+                  color: brandConfig.textMuted,
+                  backgroundColor: brandConfig.bgSecondary,
+                  borderRight: `1px solid ${brandConfig.borderSubtle}`,
+                }}
+              >
+                {["1", "2", "3", "4", "5", "6", "7"].map((n) => (
+                  <span key={n} className="leading-7">
+                    {n}
+                  </span>
+                ))}
+              </div>
+
+              {/* SQL content */}
+              <div
+                className="flex-1 p-5 leading-7"
+                style={{
+                  fontFamily: "var(--font-jetbrains)",
+                  fontSize: "0.8125rem",
+                  backgroundColor: brandConfig.bgSecondary,
+                }}
+              >
                 <div>
-                  <span style={{ color: "#c678dd" }}>SELECT</span>
-                  <span className="text-zinc-300"> u.name, u.email,</span>
+                  <span style={{ color: "#c2703e" }}>SELECT</span>
+                  <span style={{ color: brandConfig.textSecondary }}> u.name, u.email,</span>
                 </div>
                 <div>
-                  <span className="text-zinc-300">{"  "}</span>
-                  <span style={{ color: "#c678dd" }}>COUNT</span>
+                  <span style={{ color: brandConfig.textSecondary }}>{"  "}</span>
+                  <span style={{ color: "#c2703e" }}>COUNT</span>
+                  <span style={{ color: brandConfig.textSecondary }}>(o.id)</span>
+                  <span style={{ color: "#c2703e" }}> AS</span>
+                  <span style={{ color: "#b89b3e" }}> order_count</span>
                 </div>
                 <div>
-                  <span className="text-zinc-300">{"  "}(</span>
-                  <span style={{ color: "#e5c07b" }}>o.id</span>
-                  <span className="text-zinc-300">) </span>
-                  <span style={{ color: "#c678dd" }}>AS</span>
-                  <span style={{ color: "#61afef" }}> order_count</span>
+                  <span style={{ color: "#c2703e" }}>FROM</span>
+                  <span style={{ color: brandConfig.textSecondary }}> users </span>
+                  <span style={{ color: "#c2703e" }}>u</span>
                 </div>
                 <div>
-                  <span style={{ color: "#c678dd" }}>FROM</span>
-                  <span style={{ color: "#e06c75" }}> users</span>
-                  <span className="text-zinc-300"> u</span>
+                  <span style={{ color: "#c2703e" }}>LEFT JOIN</span>
+                  <span style={{ color: brandConfig.textSecondary }}> orders </span>
+                  <span style={{ color: "#c2703e" }}>o</span>
                 </div>
                 <div>
-                  <span style={{ color: "#c678dd" }}>WHERE</span>
-                  <span style={{ color: "#e5c07b" }}> u.created_at</span>
-                  <span className="text-zinc-300"> &gt; </span>
-                  <span style={{ color: "#98c379" }}>&apos;2026-01-01&apos;</span>
+                  <span style={{ color: "#c2703e" }}>{"  ON"}</span>
+                  <span style={{ color: brandConfig.textSecondary }}> u.id </span>
+                  <span style={{ color: "#c2703e" }}>=</span>
+                  <span style={{ color: brandConfig.textSecondary }}> o.user_id</span>
+                </div>
+                <div>
+                  <span style={{ color: "#c2703e" }}>GROUP BY</span>
+                  <span style={{ color: brandConfig.textSecondary }}> u.name, u.email</span>
+                </div>
+                <div>
+                  <span style={{ color: "#c2703e" }}>LIMIT</span>
+                  <span style={{ color: "#b89b3e" }}> 50</span>
+                  <span style={{ color: brandConfig.textMuted }}>;</span>
                 </div>
               </div>
             </div>
-            <div className="relative px-4 py-3 bg-zinc-900 border-t border-zinc-800">
+
+            {/* Status bar with animated toast */}
+            <div
+              className="relative flex items-center px-5 py-3"
+              style={{
+                backgroundColor: brandConfig.bgPrimary,
+                borderTop: `1px solid ${brandConfig.borderSubtle}`,
+              }}
+            >
+              <span
+                className="text-xs"
+                style={{
+                  fontFamily: "var(--font-jetbrains)",
+                  color: brandConfig.textMuted,
+                }}
+              >
+                Connected to prod-db
+              </span>
               <motion.div
-                className="absolute -top-12 right-4 flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20"
-                initial={{ opacity: 0, y: 10 }}
-                animate={showToast ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+                className="absolute right-5 flex items-center gap-2 px-3 py-1.5 rounded-md"
+                style={{
+                  backgroundColor: `${brandConfig.secondaryColorHex}15`,
+                  border: `1px solid ${brandConfig.secondaryColorHex}30`,
+                }}
+                initial={{ opacity: 0, x: 10 }}
+                animate={showToast ? { opacity: 1, x: 0 } : { opacity: 0, x: 10 }}
                 transition={{ duration: 0.3 }}
               >
-                <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                <span className="text-emerald-400 text-xs font-mono">Query executed in 12ms</span>
+                <div
+                  className="w-1.5 h-1.5 rounded-full"
+                  style={{ backgroundColor: brandConfig.secondaryColorHex }}
+                />
+                <span
+                  className="text-xs"
+                  style={{
+                    fontFamily: "var(--font-jetbrains)",
+                    color: brandConfig.secondaryColorHex,
+                  }}
+                >
+                  Query executed in 12ms
+                </span>
               </motion.div>
-              <span className="text-zinc-500 text-xs font-mono">Ready</span>
             </div>
           </div>
         </motion.div>

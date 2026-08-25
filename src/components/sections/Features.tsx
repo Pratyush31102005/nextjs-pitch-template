@@ -12,43 +12,67 @@ const iconMap = {
   Users,
 };
 
+const accentColors = [
+  brandConfig.primaryColorHex,
+  brandConfig.secondaryColorHex,
+  brandConfig.accentColorHex,
+];
+
 export function Features() {
   return (
     <Section>
-      <motion.h2
-        className="text-3xl md:text-4xl font-bold text-white text-center mb-16"
+      <motion.div
+        className="mb-14"
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.5 }}
       >
-        Everything you need
-      </motion.h2>
+        <h2
+          className="text-3xl sm:text-4xl font-bold leading-tight tracking-tight"
+          style={{
+            fontFamily: "var(--font-playfair)",
+            color: brandConfig.textPrimary,
+          }}
+        >
+          Everything you need.
+        </h2>
+      </motion.div>
 
-      <div className="grid md:grid-cols-3 gap-6">
+      {/* Equal 3-column grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         {brandConfig.featureList.map((feature, i) => {
           const Icon = iconMap[feature.iconName as keyof typeof iconMap];
           return (
-            <Card key={feature.title} delay={i * 0.15}>
-              <div className="flex flex-col items-start gap-4">
+            <Card key={feature.title} delay={i * 0.12} className="min-h-[220px]">
+              <div className="flex flex-col items-center text-center gap-4 h-full justify-center">
                 <div
-                  className="w-12 h-12 rounded-xl flex items-center justify-center"
+                  className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
                   style={{
-                    backgroundColor: `${brandConfig.primaryColorHex}22`,
+                    backgroundColor: `${accentColors[i]}15`,
+                    border: `1px solid ${accentColors[i]}30`,
                   }}
                 >
                   {Icon && (
-                    <Icon
-                      size={24}
-                      style={{ color: brandConfig.primaryColorHex }}
-                    />
+                    <Icon size={24} style={{ color: accentColors[i] }} />
                   )}
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold text-white mb-2">
+                  <h3
+                    className="text-lg font-semibold mb-2"
+                    style={{
+                      fontFamily: "var(--font-playfair)",
+                      color: brandConfig.textPrimary,
+                    }}
+                  >
                     {feature.title}
                   </h3>
-                  <p className="text-zinc-400">{feature.description}</p>
+                  <p
+                    className="text-sm leading-relaxed"
+                    style={{ color: brandConfig.textSecondary }}
+                  >
+                    {feature.description}
+                  </p>
                 </div>
               </div>
             </Card>

@@ -16,29 +16,33 @@ export function Button({
 }: ButtonProps) {
   const theme = getThemeStyles();
 
-  const baseStyles =
-    "relative px-8 py-4 rounded-xl font-semibold text-white transition-all duration-300 cursor-pointer";
-
-  const variants = {
-    primary: {
-      backgroundColor: theme.primary,
-      boxShadow: theme.glow,
-    },
-    secondary: {
-      backgroundColor: "transparent",
-      border: `2px solid ${theme.primary}`,
-    },
-  };
-
   return (
     <motion.button
-      className={`${baseStyles} ${className}`}
-      style={variants[variant]}
-      whileHover={{
-        scale: 1.05,
-        boxShadow: theme.glowLarge,
+      className={`relative px-8 py-4 rounded-full font-semibold transition-all duration-200 cursor-pointer ${className}`}
+      style={{
+        fontFamily: "var(--font-jetbrains)",
+        fontSize: "0.875rem",
+        letterSpacing: "0.05em",
+        textTransform: "uppercase" as const,
+        ...(variant === "primary"
+          ? {
+              backgroundColor: theme.primary,
+              color: theme.bgPrimary,
+              border: `1px solid ${theme.primary}`,
+              boxShadow: theme.shadowHard,
+            }
+          : {
+              backgroundColor: "transparent",
+              color: theme.textPrimary,
+              border: `1px solid ${theme.borderSubtle}`,
+              boxShadow: "none",
+            }),
       }}
-      whileTap={{ scale: 0.95 }}
+      whileHover={{
+        y: -2,
+        boxShadow: variant === "primary" ? theme.shadowHardHover : "none",
+      }}
+      whileTap={{ y: 1, boxShadow: "none" }}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
