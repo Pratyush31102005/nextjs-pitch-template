@@ -18,6 +18,14 @@ const accentColors = [
   brandConfig.accentColorHex,
 ];
 
+const container = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.15 },
+  },
+};
+
 export function Features() {
   return (
     <Section>
@@ -39,8 +47,13 @@ export function Features() {
         </h2>
       </motion.div>
 
-      {/* Equal 3-column grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <motion.div
+        className="grid grid-cols-1 md:grid-cols-3 gap-5"
+        variants={container}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, margin: "-60px" }}
+      >
         {brandConfig.featureList.map((feature, i) => {
           const Icon = iconMap[feature.iconName as keyof typeof iconMap];
           return (
@@ -78,7 +91,7 @@ export function Features() {
             </Card>
           );
         })}
-      </div>
+      </motion.div>
     </Section>
   );
 }

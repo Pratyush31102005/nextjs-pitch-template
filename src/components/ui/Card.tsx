@@ -18,10 +18,13 @@ export function Card({ children, className = "", delay = 0 }: CardProps) {
         border: `1px solid ${brandConfig.borderSubtle}`,
       }}
       initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-40px" }}
       transition={{ duration: 0.5, delay, ease: "easeOut" }}
       whileHover={{
         y: -4,
+        borderColor: brandConfig.primaryColorHex,
+        boxShadow: `0 0 20px ${brandConfig.primaryColorHex}15`,
         transition: { duration: 0.2 },
       }}
     >

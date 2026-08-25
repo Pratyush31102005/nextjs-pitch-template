@@ -7,17 +7,20 @@ interface ButtonProps {
   children: React.ReactNode;
   variant?: "primary" | "secondary";
   className?: string;
+  onClick?: () => void;
 }
 
 export function Button({
   children,
   variant = "primary",
   className = "",
+  onClick,
 }: ButtonProps) {
   const theme = getThemeStyles();
 
   return (
     <motion.button
+      onClick={onClick}
       className={`relative px-8 py-4 rounded-full font-semibold transition-all duration-200 cursor-pointer ${className}`}
       style={{
         fontFamily: "var(--font-jetbrains)",

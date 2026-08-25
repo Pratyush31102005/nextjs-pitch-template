@@ -3,11 +3,70 @@
 import { motion } from "framer-motion";
 import { brandConfig } from "@/lib/brand-config";
 import { Button } from "@/components/ui/Button";
+import { useEffect, useState, useRef } from "react";
 
-export function Hero() {
+const HERO_SQL = `SELECT u.name, u.email,
+  COUNT(o.id) AS total_orders
+FROM users u
+WHERE u.active = true
+ORDER BY total_orders DESC
+LIMIT 10;`;
+
+const KEYWORDS = ["SELECT", "FROM", "WHERE", "ORDER", "BY", "LIMIT", "AS"];
+const FUNCTIONS = ["COUNT"];
+
+function tokenize(text: string) {
+  const tokens: { value: string; color: string }[] = [];
+  const regex = /(\s+|[(),;=]|'[^']*'|[\w.]+)/g;
+  let match;
+  while ((match = regex.exec(text)) !== null) {
+    const w = match[1];
+    if (KEYWORDS.includes(w)) tokens.push({ value: w, color: "#c2703e" });
+    else if (FUNCTIONS.includes(w)) tokens.push({ value: w, color: "#c2703e" });
+    else if (/^\d+$/.test(w)) tokens.push({ value: w, color: "#b89b3e" });
+    else if (w === "true" || w === "false") tokens.push({ value: w, color: "#98c379" });
+    else tokens.push({ value: w, color: brandConfig.textSecondary });
+  }
+  return tokens;
+}
+
+function HighlightedSQL({ text }: { text: string }) {
+  return (
+    <div>
+      {text.split("\n").map((line, i) => (
+        <div key={i}>
+          {line.length === 0
+            ? "\u00A0"
+            : tokenize(line).map((t, j) => (
+                <span key={j} style={{ color: t.color }}>{t.value}</span>
+              ))}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export function Hero({ onCtaClick }: { onCtaClick?: () => void }) {
+  const [typed, setTyped] = useState("");
+  const [done, setDone] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    let i = 0;
+    const id = setInterval(() => {
+      if (i < HERO_SQL.length) {
+        i++;
+        setTyped(HERO_SQL.slice(0, i));
+      } else {
+        clearInterval(id);
+        setDone(true);
+      }
+    }, 35);
+    return () => clearInterval(id);
+  }, []);
+
   return (
     <section className="relative min-h-[70vh] flex items-center px-6 lg:px-16 overflow-hidden pt-20">
-      {/* Subtle radial background */}
       <div
         className="absolute inset-0 -z-10"
         style={{
@@ -16,10 +75,9 @@ export function Hero() {
       />
 
       <div className="w-full max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
           {/* Left — Text */}
           <div>
-            {/* Badge */}
             <motion.div
               className="inline-flex items-center gap-2.5 px-4 py-2 mb-6 rounded-full border"
               style={{
@@ -51,7 +109,6 @@ export function Hero() {
               </span>
             </motion.div>
 
-            {/* Headline */}
             <motion.h1
               className="mb-6 leading-[1.05] tracking-tight"
               style={{
@@ -60,11 +117,7 @@ export function Hero() {
               }}
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{
-                duration: 0.6,
-                delay: 0.2,
-                ease: [0.16, 1, 0.3, 1],
-              }}
+              transition={{ duration: 0.6, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
             >
               <span className="block text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold">
                 The fastest way
@@ -80,7 +133,6 @@ export function Hero() {
               </span>
             </motion.h1>
 
-            {/* Subtitle — bumped weight, brighter color */}
             <motion.p
               className="text-base sm:text-lg max-w-lg mb-10 leading-relaxed"
               style={{
@@ -97,19 +149,19 @@ export function Hero() {
               milliseconds.
             </motion.p>
 
-            {/* CTA */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.7 }}
             >
-              <Button variant="primary">{brandConfig.ctaText}</Button>
+              <Button variant="primary" onClick={onCtaClick}>{brandConfig.ctaText}</Button>
             </motion.div>
           </div>
 
-          {/* Right — SQL Code Preview Card */}
+          {/* Right — SQL Code Preview (visible on all screens) */}
           <motion.div
-            className="hidden lg:block"
+            ref={ref}
+            className="mt-8 lg:mt-0"
             initial={{ opacity: 0, x: 40 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.7, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
@@ -122,7 +174,6 @@ export function Hero() {
                 boxShadow: "12px 12px 0px rgba(0,0,0,0.3)",
               }}
             >
-              {/* Title bar */}
               <div
                 className="flex items-center gap-3 px-4 py-3"
                 style={{
@@ -146,61 +197,23 @@ export function Hero() {
                 </span>
               </div>
 
-              {/* SQL content */}
               <div className="p-5">
                 <div
                   className="text-sm leading-7"
                   style={{ fontFamily: "var(--font-jetbrains)" }}
                 >
-                  <div>
-                    <span style={{ color: "#c2703e" }}>SELECT</span>
-                    <span style={{ color: brandConfig.textSecondary }}>
-                      {" "}
-                      u.name,
-                    </span>
-                  </div>
-                  <div>
-                    <span style={{ color: brandConfig.textSecondary }}>
-                      {"  "}COUNT
-                    </span>
-                    <span style={{ color: brandConfig.textSecondary }}>
-                      (o.id)
-                    </span>
-                    <span style={{ color: "#c2703e" }}> AS</span>
-                    <span style={{ color: "#b89b3e" }}> total_orders</span>
-                  </div>
-                  <div>
-                    <span style={{ color: "#c2703e" }}>FROM</span>
-                    <span style={{ color: brandConfig.textSecondary }}>
-                      {" "}
-                      users u
-                    </span>
-                  </div>
-                  <div>
-                    <span style={{ color: "#c2703e" }}>WHERE</span>
-                    <span style={{ color: brandConfig.textSecondary }}>
-                      {" "}
-                      u.active{" "}
-                    </span>
-                    <span style={{ color: "#c2703e" }}>=</span>
-                    <span style={{ color: "#98c379" }}> true</span>
-                  </div>
-                  <div>
-                    <span style={{ color: "#c2703e" }}>ORDER BY</span>
-                    <span style={{ color: brandConfig.textSecondary }}>
-                      {" "}
-                      total_orders{" "}
-                    </span>
-                    <span style={{ color: "#c2703e" }}>DESC</span>
-                  </div>
-                  <div>
-                    <span style={{ color: "#c2703e" }}>LIMIT</span>
-                    <span style={{ color: "#b89b3e" }}> 10</span>
-                    <span style={{ color: brandConfig.textMuted }}>;</span>
-                  </div>
+                  <HighlightedSQL text={typed} />
+                  {!done && (
+                    <span
+                      className="inline-block w-[2px] h-[1.1em] ml-[1px] align-middle"
+                      style={{
+                        backgroundColor: brandConfig.primaryColorHex,
+                        animation: "blink 1s step-end infinite",
+                      }}
+                    />
+                  )}
                 </div>
 
-                {/* Result indicator */}
                 <div
                   className="mt-4 pt-4 flex items-center gap-2"
                   style={{ borderTop: `1px solid ${brandConfig.borderSubtle}` }}
@@ -216,7 +229,7 @@ export function Hero() {
                       color: brandConfig.secondaryColorHex,
                     }}
                   >
-                    10 rows returned in 12ms
+                    {done ? "10 rows returned in 12ms" : "Executing query..."}
                   </span>
                 </div>
               </div>

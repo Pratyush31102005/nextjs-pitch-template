@@ -1,11 +1,17 @@
+"use client";
+
+import { useState } from "react";
 import { Navbar } from "@/components/layout/Navbar";
 import { Hero } from "@/components/sections/Hero";
 import { Showcase } from "@/components/sections/Showcase";
 import { Features } from "@/components/sections/Features";
 import { Footer } from "@/components/sections/Footer";
+import { WaitlistModal } from "@/components/ui/WaitlistModal";
 import { brandConfig } from "@/lib/brand-config";
 
 export default function Home() {
+  const [modalOpen, setModalOpen] = useState(false);
+
   return (
     <main
       className="min-h-screen"
@@ -15,12 +21,13 @@ export default function Home() {
       }}
     >
       <Navbar />
-      <Hero />
+      <Hero onCtaClick={() => setModalOpen(true)} />
       <Showcase />
       <div id="features">
         <Features />
       </div>
       <Footer />
+      <WaitlistModal open={modalOpen} onClose={() => setModalOpen(false)} />
     </main>
   );
 }
