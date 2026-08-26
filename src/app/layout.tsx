@@ -15,30 +15,28 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Acme AI — Query Postgres with Natural Language",
+  title: "Tellie Prompter — The smart teleprompter that stays in sync with you",
   description:
-    "Stop writing SQL. Use plain English and get optimized queries in milliseconds. The fastest way to query your Postgres DB.",
-  metadataBase: new URL("https://acme-ai.vercel.app"),
+    "The smart teleprompter that stays in sync with you. Built with Next.js.",
+  metadataBase: new URL("https://tellie-prompter.vercel.app"),
   openGraph: {
-    title: "Acme AI — Query Postgres with Natural Language",
-    description:
-      "Stop writing SQL. Use plain English and get optimized queries in milliseconds.",
+    title: "Tellie Prompter — The smart teleprompter that stays in sync with you",
+    description: "The smart teleprompter that stays in sync with you. Built with Next.js.",
     images: [
       {
         url: "/og-image.svg",
         width: 1200,
         height: 630,
-        alt: "Acme AI",
+        alt: "Tellie Prompter",
       },
     ],
     type: "website",
-    siteName: "Acme AI",
+    siteName: "Tellie Prompter",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Acme AI — Query Postgres with Natural Language",
-    description:
-      "Stop writing SQL. Use plain English and get optimized queries in milliseconds.",
+    title: "Tellie Prompter — The smart teleprompter that stays in sync with you",
+    description: "The smart teleprompter that stays in sync with you. Built with Next.js.",
     images: ["/og-image.svg"],
   },
 };
