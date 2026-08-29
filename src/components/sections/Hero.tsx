@@ -1,19 +1,33 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { brandConfig } from "@/lib/brand-config";
 import { Button } from "@/components/ui/Button";
 import { useEffect, useState, useRef } from "react";
 
-const HERO_SQL = `SELECT u.name, u.email,
-  COUNT(o.id) AS total_orders
+const PROMPT = "Show customers with more than 5 orders this month";
+const SQL = `SELECT u.name, u.email, COUNT(o.id) AS order_count
 FROM users u
-WHERE u.active = true
-ORDER BY total_orders DESC
-LIMIT 10;`;
+LEFT JOIN orders o ON u.id = o.user_id
+WHERE o.created_at >= '2026-08-01'
+GROUP BY u.name, u.email
+HAVING COUNT(o.id) > 5
+ORDER BY order_count DESC;`;
 
-const KEYWORDS = ["SELECT", "FROM", "WHERE", "ORDER", "BY", "LIMIT", "AS"];
-const FUNCTIONS = ["COUNT"];
+const RESULTS = [
+  { name: "Sarah Chen", email: "sarah@acme.co", orders: 23 },
+  { name: "Marcus Johnson", email: "marcus@acme.co", orders: 17 },
+  { name: "Elena Rodriguez", email: "elena@acme.co", orders: 12 },
+  { name: "David Kim", email: "david@acme.co", orders: 8 },
+];
+
+type Phase = "prompt" | "sql" | "results";
+
+const KEYWORDS = [
+  "SELECT", "FROM", "WHERE", "LEFT", "JOIN", "ON", "GROUP", "BY",
+  "HAVING", "ORDER", "ASC", "DESC", "AS", "COUNT",
+];
+const LITERALS = ["'2026-08-01'", "5"];
 
 function tokenize(text: string) {
   const tokens: { value: string; color: string }[] = [];
@@ -22,9 +36,8 @@ function tokenize(text: string) {
   while ((match = regex.exec(text)) !== null) {
     const w = match[1];
     if (KEYWORDS.includes(w)) tokens.push({ value: w, color: "#c2703e" });
-    else if (FUNCTIONS.includes(w)) tokens.push({ value: w, color: "#c2703e" });
-    else if (/^\d+$/.test(w)) tokens.push({ value: w, color: "#b89b3e" });
-    else if (w === "true" || w === "false") tokens.push({ value: w, color: "#98c379" });
+    else if (LITERALS.includes(w) || /^\d+$/.test(w))
+      tokens.push({ value: w, color: "#b89b3e" });
     else tokens.push({ value: w, color: brandConfig.textSecondary });
   }
   return tokens;
@@ -38,7 +51,9 @@ function HighlightedSQL({ text }: { text: string }) {
           {line.length === 0
             ? "\u00A0"
             : tokenize(line).map((t, j) => (
-                <span key={j} style={{ color: t.color }}>{t.value}</span>
+                <span key={j} style={{ color: t.color }}>
+                  {t.value}
+                </span>
               ))}
         </div>
       ))}
@@ -47,23 +62,44 @@ function HighlightedSQL({ text }: { text: string }) {
 }
 
 export function Hero({ onCtaClick }: { onCtaClick?: () => void }) {
-  const [typed, setTyped] = useState("");
-  const [done, setDone] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const [phase, setPhase] = useState<Phase>("prompt");
+  const [typedPrompt, setTypedPrompt] = useState("");
+  const [typedSql, setTypedSql] = useState("");
+  const [showResults, setShowResults] = useState(false);
 
+  // Phase 1: type prompt
   useEffect(() => {
     let i = 0;
     const id = setInterval(() => {
-      if (i < HERO_SQL.length) {
+      if (i < PROMPT.length) {
         i++;
-        setTyped(HERO_SQL.slice(0, i));
+        setTypedPrompt(PROMPT.slice(0, i));
       } else {
         clearInterval(id);
-        setDone(true);
+        setTimeout(() => setPhase("sql"), 800);
       }
-    }, 35);
+    }, 45);
     return () => clearInterval(id);
   }, []);
+
+  // Phase 2: type SQL
+  useEffect(() => {
+    if (phase !== "sql") return;
+    let i = 0;
+    const id = setInterval(() => {
+      if (i < SQL.length) {
+        i++;
+        setTypedSql(SQL.slice(0, i));
+      } else {
+        clearInterval(id);
+        setTimeout(() => {
+          setPhase("results");
+          setShowResults(true);
+        }, 600);
+      }
+    }, 18);
+    return () => clearInterval(id);
+  }, [phase]);
 
   return (
     <section className="relative min-h-[70vh] flex items-center px-6 lg:px-16 overflow-hidden pt-20">
@@ -154,13 +190,17 @@ export function Hero({ onCtaClick }: { onCtaClick?: () => void }) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.7 }}
             >
-              <Button variant="primary" onClick={onCtaClick}>{brandConfig.ctaText}</Button>
+              <Button variant="primary" onClick={onCtaClick}>
+                {brandConfig.ctaText}
+                <span className="ml-2 inline-block transition-transform group-hover:translate-x-1">
+                  →
+                </span>
+              </Button>
             </motion.div>
           </div>
 
-          {/* Right — SQL Code Preview (visible on all screens) */}
+          {/* Right — Demo Terminal */}
           <motion.div
-            ref={ref}
             className="mt-8 lg:mt-0"
             initial={{ opacity: 0, x: 40 }}
             animate={{ opacity: 1, x: 0 }}
@@ -174,6 +214,7 @@ export function Hero({ onCtaClick }: { onCtaClick?: () => void }) {
                 boxShadow: "12px 12px 0px rgba(0,0,0,0.3)",
               }}
             >
+              {/* Title bar */}
               <div
                 className="flex items-center gap-3 px-4 py-3"
                 style={{
@@ -193,45 +234,168 @@ export function Hero({ onCtaClick }: { onCtaClick?: () => void }) {
                     color: brandConfig.textMuted,
                   }}
                 >
-                  query.sql
+                  {phase === "prompt" ? "Acme AI — Ask anything" : "query.sql — acme-ai"}
                 </span>
               </div>
 
-              <div className="p-5">
-                <div
-                  className="text-sm leading-7"
-                  style={{ fontFamily: "var(--font-jetbrains)" }}
-                >
-                  <HighlightedSQL text={typed} />
-                  {!done && (
-                    <span
-                      className="inline-block w-[2px] h-[1.1em] ml-[1px] align-middle"
-                      style={{
-                        backgroundColor: brandConfig.primaryColorHex,
-                        animation: "blink 1s step-end infinite",
-                      }}
-                    />
+              {/* Content */}
+              <div className="p-5 min-h-[340px]">
+                <AnimatePresence mode="wait">
+                  {phase === "prompt" && (
+                    <motion.div
+                      key="prompt"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <div className="flex items-start gap-3 mb-4">
+                        <div
+                          className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 text-xs font-bold mt-0.5"
+                          style={{
+                            backgroundColor: brandConfig.primaryColorHex,
+                            color: brandConfig.bgPrimary,
+                            fontFamily: "var(--font-jetbrains)",
+                          }}
+                        >
+                          You
+                        </div>
+                        <p
+                          className="text-sm leading-relaxed"
+                          style={{
+                            fontFamily: "var(--font-jetbrains)",
+                            color: brandConfig.textPrimary,
+                          }}
+                        >
+                          {typedPrompt}
+                          <span
+                            className="inline-block w-[2px] h-[1em] ml-[1px] align-middle"
+                            style={{
+                              backgroundColor: brandConfig.primaryColorHex,
+                              animation: "blink 1s step-end infinite",
+                            }}
+                          />
+                        </p>
+                      </div>
+                    </motion.div>
                   )}
-                </div>
 
-                <div
-                  className="mt-4 pt-4 flex items-center gap-2"
-                  style={{ borderTop: `1px solid ${brandConfig.borderSubtle}` }}
-                >
-                  <div
-                    className="w-2 h-2 rounded-full"
-                    style={{ backgroundColor: brandConfig.secondaryColorHex }}
-                  />
-                  <span
-                    className="text-xs"
-                    style={{
-                      fontFamily: "var(--font-jetbrains)",
-                      color: brandConfig.secondaryColorHex,
-                    }}
-                  >
-                    {done ? "10 rows returned in 12ms" : "Executing query..."}
-                  </span>
-                </div>
+                  {(phase === "sql" || phase === "results") && (
+                    <motion.div
+                      key="sql"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      {/* User prompt */}
+                      <div className="flex items-start gap-3 mb-4">
+                        <div
+                          className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 text-xs font-bold mt-0.5"
+                          style={{
+                            backgroundColor: brandConfig.primaryColorHex,
+                            color: brandConfig.bgPrimary,
+                            fontFamily: "var(--font-jetbrains)",
+                          }}
+                        >
+                          You
+                        </div>
+                        <p
+                          className="text-sm"
+                          style={{
+                            fontFamily: "var(--font-jetbrains)",
+                            color: brandConfig.textSecondary,
+                          }}
+                        >
+                          {PROMPT}
+                        </p>
+                      </div>
+
+                      {/* AI response */}
+                      <div className="flex items-start gap-3">
+                        <div
+                          className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 text-xs font-bold mt-0.5"
+                          style={{
+                            backgroundColor: brandConfig.secondaryColorHex,
+                            color: brandConfig.bgPrimary,
+                            fontFamily: "var(--font-jetbrains)",
+                          }}
+                        >
+                          AI
+                        </div>
+                        <div
+                          className="text-sm leading-7 flex-1"
+                          style={{ fontFamily: "var(--font-jetbrains)" }}
+                        >
+                          <HighlightedSQL text={typedSql} />
+                          {phase === "sql" && (
+                            <span
+                              className="inline-block w-[2px] h-[1.1em] ml-[1px] align-middle"
+                              style={{
+                                backgroundColor: brandConfig.secondaryColorHex,
+                                animation: "blink 1s step-end infinite",
+                              }}
+                            />
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Results table */}
+                      {showResults && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.4, delay: 0.2 }}
+                          className="mt-5 rounded-lg overflow-hidden"
+                          style={{ border: `1px solid ${brandConfig.borderSubtle}` }}
+                        >
+                          <table className="w-full text-xs">
+                            <thead>
+                              <tr
+                                style={{
+                                  backgroundColor: brandConfig.bgPrimary,
+                                  borderBottom: `1px solid ${brandConfig.borderSubtle}`,
+                                }}
+                              >
+                                <th className="text-left px-3 py-2 font-medium" style={{ color: brandConfig.textMuted, fontFamily: "var(--font-jetbrains)" }}>name</th>
+                                <th className="text-left px-3 py-2 font-medium" style={{ color: brandConfig.textMuted, fontFamily: "var(--font-jetbrains)" }}>email</th>
+                                <th className="text-right px-3 py-2 font-medium" style={{ color: brandConfig.textMuted, fontFamily: "var(--font-jetbrains)" }}>orders</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {RESULTS.map((row, i) => (
+                                <motion.tr
+                                  key={row.email}
+                                  initial={{ opacity: 0, x: -10 }}
+                                  animate={{ opacity: 1, x: 0 }}
+                                  transition={{ duration: 0.3, delay: 0.1 * i }}
+                                  style={{
+                                    borderBottom: i < RESULTS.length - 1 ? `1px solid ${brandConfig.borderSubtle}` : "none",
+                                  }}
+                                >
+                                  <td className="px-3 py-2" style={{ color: brandConfig.textPrimary, fontFamily: "var(--font-jetbrains)" }}>{row.name}</td>
+                                  <td className="px-3 py-2" style={{ color: brandConfig.textSecondary, fontFamily: "var(--font-jetbrains)" }}>{row.email}</td>
+                                  <td className="px-3 py-2 text-right font-medium" style={{ color: brandConfig.primaryColorHex, fontFamily: "var(--font-jetbrains)" }}>{row.orders}</td>
+                                </motion.tr>
+                              ))}
+                            </tbody>
+                          </table>
+                          <div
+                            className="px-3 py-2 text-right"
+                            style={{
+                              backgroundColor: brandConfig.bgPrimary,
+                              borderTop: `1px solid ${brandConfig.borderSubtle}`,
+                              fontFamily: "var(--font-jetbrains)",
+                              fontSize: "0.6875rem",
+                              color: brandConfig.textMuted,
+                            }}
+                          >
+                            127 rows • 42ms
+                          </div>
+                        </motion.div>
+                      )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             </div>
           </motion.div>

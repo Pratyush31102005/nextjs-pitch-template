@@ -55,19 +55,28 @@ export function Navbar() {
             <a
               key={link.label}
               href={link.href}
-              className="text-sm transition-colors py-2"
+              className="relative text-sm py-2 group/nav"
               style={{
                 fontFamily: "var(--font-jetbrains)",
                 color: brandConfig.textSecondary,
               }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.color = brandConfig.textPrimary)
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.color = brandConfig.textSecondary)
-              }
             >
-              {link.label}
+              <span
+                className="transition-colors group-hover/nav:text-current"
+                style={{ color: "inherit" }}
+                onMouseEnter={(e) =>
+                  (e.currentTarget.style.color = brandConfig.textPrimary)
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.color = "inherit")
+                }
+              >
+                {link.label}
+              </span>
+              <span
+                className="absolute bottom-0 left-0 h-[1px] w-0 group-hover/nav:w-full transition-all duration-300"
+                style={{ backgroundColor: brandConfig.primaryColorHex }}
+              />
             </a>
           ))}
         </nav>

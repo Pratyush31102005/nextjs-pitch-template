@@ -21,7 +21,7 @@ export function Button({
   return (
     <motion.button
       onClick={onClick}
-      className={`relative px-8 py-4 rounded-full font-semibold transition-all duration-200 cursor-pointer ${className}`}
+      className={`group relative px-8 py-4 rounded-full font-semibold transition-colors duration-200 cursor-pointer inline-flex items-center ${className}`}
       style={{
         fontFamily: "var(--font-jetbrains)",
         fontSize: "0.875rem",
@@ -45,7 +45,7 @@ export function Button({
         y: -2,
         boxShadow: variant === "primary" ? theme.shadowHardHover : "none",
       }}
-      whileTap={{ y: 1, boxShadow: "none" }}
+      whileTap={{ scale: 0.97, y: 0, boxShadow: "none" }}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}

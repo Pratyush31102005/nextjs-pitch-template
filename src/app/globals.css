@@ -84,3 +84,21 @@ nextjs-portal {
   0%, 100% { opacity: 1; }
   50% { opacity: 0; }
 }
+
+/* Mobile polish */
+@media (max-width: 640px) {
+  html {
+    font-size: 15px;
+  }
+}
+
+/* Terminal overflow handling */
+pre, code, .leading-7 {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Smooth scroll offset for fixed navbar */
+html {
+  scroll-padding-top: 56px;
+}
