@@ -14,22 +14,24 @@ export default function Home() {
   const [modalOpen, setModalOpen] = useState(false);
 
   return (
-    <main
-      className="min-h-screen relative"
-      style={{
-        backgroundColor: brandConfig.bgPrimary,
-        color: brandConfig.textPrimary,
-      }}
-    >
+    <>
       <AsciiSineBackground />
-      <Navbar />
-      <Hero onCtaClick={() => setModalOpen(true)} />
-      <Showcase />
-      <div id="features">
-        <Features />
-      </div>
-      <Footer />
-      <WaitlistModal open={modalOpen} onClose={() => setModalOpen(false)} />
-    </main>
+      <main
+        className="min-h-screen relative"
+        style={{
+          backgroundColor: brandConfig.bgPrimary,
+          color: brandConfig.textPrimary,
+        }}
+      >
+        <Navbar />
+        <Hero onCtaClick={() => setModalOpen(true)} />
+        <Showcase />
+        <div id="features">
+          <Features />
+        </div>
+        <Footer />
+        <WaitlistModal open={modalOpen} onClose={() => setModalOpen(false)} />
+      </main>
+    </>
   );
 }

@@ -150,7 +150,7 @@ export function AsciiSineBackground() {
     <canvas
       ref={canvasRef}
       className="pointer-events-none fixed inset-0"
-      style={{ zIndex: -5 }}
+      style={{ zIndex: 0 }}
       aria-hidden="true"
     />
   );
