@@ -15,6 +15,7 @@ export default function Home() {
 
   return (
     <>
+      <AsciiSineBackground />
       <main
         className="min-h-screen relative"
         style={{
@@ -31,7 +32,6 @@ export default function Home() {
         <Footer />
         <WaitlistModal open={modalOpen} onClose={() => setModalOpen(false)} />
       </main>
-      <AsciiSineBackground />
     </>
   );
 }
