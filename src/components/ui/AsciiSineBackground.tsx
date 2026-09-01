@@ -109,7 +109,7 @@ export function AsciiSineBackground() {
           const normalizedDist = dist / maxDist;
 
           const centerFade = 1 - Math.pow(1 - normalizedDist, 2);
-          const opacity = 0.03 + centerFade * 0.05;
+          const opacity = 0.08 + centerFade * 0.12;
 
           const navbarFade = y < 80 ? Math.max(0, y / 80) : 1;
           const finalOpacity = opacity * navbarFade;
