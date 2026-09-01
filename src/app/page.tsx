@@ -7,6 +7,7 @@ import { Showcase } from "@/components/sections/Showcase";
 import { Features } from "@/components/sections/Features";
 import { Footer } from "@/components/sections/Footer";
 import { WaitlistModal } from "@/components/ui/WaitlistModal";
+import { AsciiSineBackground } from "@/components/ui/AsciiSineBackground";
 import { brandConfig } from "@/lib/brand-config";
 
 export default function Home() {
@@ -14,12 +15,13 @@ export default function Home() {
 
   return (
     <main
-      className="min-h-screen"
+      className="min-h-screen relative"
       style={{
         backgroundColor: brandConfig.bgPrimary,
         color: brandConfig.textPrimary,
       }}
     >
+      <AsciiSineBackground />
       <Navbar />
       <Hero onCtaClick={() => setModalOpen(true)} />
       <Showcase />
